@@ -73,3 +73,88 @@ Within this terminal run `pip install --user pythonanywhere` this will setup a v
 After this run `$ pa_autoconfigure_django.py --python=3.10 https://github.com/<your-github-username>/my-first-blog.git` to download your git repository.
 
 Recreate a new super user and you can now access the admin panel of your site by visiting the url given by pythonanywhere (most likely <username>.pythonanywhere.com)
+
+```
+My login
+keta6318
+Ket@6318
+```
+
+## URLs
+
+Within `<projectname>/urls.py` we can specify what URLs are available in our API.
+We import all the URLs from the blog app.
+
+```py
+    path('', include('blog.urls')),
+```
+
+## Views
+
+This is the cool stuff. My bread and butter. Functionality.
+
+```py
+def post_list(request):
+    return render(request, 'blog/post_list.html', {})
+```
+
+bim bim bam bam into `views.py`
+
+### Create object using python
+
+`Post.objects.create(author=me, title='sample title', text='test')`
+
+### Read object using python
+
+`Post.objects.all()`
+
+#### Filter posts using python
+
+`Post.objects.filter(title__contains='title')`
+
+This will filter for the titles and search for the keyword title.
+
+`Post.objects.filter(published_date__lte=timezone.now())`
+
+This filters published dates that are older than now!
+
+### Combining knowledge from views and models
+
+the post created before currently are not published (they have no published date yet.). we can do this however using python code.
+
+```py
+post = Post.objects.get(title="Sample title")
+post.publish()
+```
+
+This gets a single post with the title "Sample title". We then call the publish function on this object which if you remember sets the `published_date` to now succesfully publishing a post.
+
+### Ordering objects
+
+Sometimes you want the cheapest prices first, or looking for a book. For these things you can order the objects.
+
+`Posts.objects.order_by('-created_date')`
+
+Gets the newest posts first since the order is by date (default newest to oldest) and reversed it using a -.
+
+#### Chaining ordering and filtering
+
+`Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')`
+
+Instructions are done from left to right. We first filter the Posts on `published_date` older than now. We then order them by newest to oldest `published_date`.
+
+## Dynamic data loading into templates
+
+In the views we currently return a static html file. But when we post new things we do want it to automatically add these to the webpage.
+
+```py
+def post_list(request):
+    posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
+    return render(request, 'blog/post_list.html', {'posts': posts})
+```
+
+This gets all the posts first, then filters and orders them. They are then passed into our template and returned to the user.
+
+## CSS Yuck
+
+CSS is used for styling your webpage. For this we are going to be using another framework called bootstrap. This framework provides a bunch of common styling operations.
